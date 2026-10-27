@@ -33,7 +33,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dd .hot b{color:var(--risk)}
 
 .shell{display:grid;grid-template-columns:184px minmax(0,1fr);min-height:calc(100vh - 49px)}
-.tablewrap{overflow-x:auto}
+/* scroll container only on phones: on desktop it would become the sticky header's scroll parent and push th down 49px */
+.tablewrap{min-width:0}
 nav{border-right:1px solid var(--line);background:var(--panel);padding:12px 8px;display:flex;flex-direction:column;gap:2px}
 nav button{all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);color:var(--dim);font-size:14px;transition:background .15s var(--ease),color .15s var(--ease)}
 nav button:hover{background:var(--raise);color:var(--ink)}
@@ -144,6 +145,7 @@ tr.ms td .due{color:var(--dim);font-weight:400;margin-left:8px}
   .dd{margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,auto);justify-content:space-between;gap:8px}
   .next{grid-template-columns:minmax(0,1fr)}
   th{top:0}
+  .tablewrap{overflow-x:auto}
   td.sub,th.sub{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
