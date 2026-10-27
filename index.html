@@ -332,7 +332,7 @@ table.score td.past{color:var(--dim);text-align:center}
     $("isum").innerHTML = (sum ? `<div class="pick">${esc(sum.text)}</div>` : "") +
       (C.length ? `<ul class="crit">${C.map((c) => `<li><b>${esc(c.label)} ${c.weight}%</b>${esc(c.why)}</li>`).join("")}</ul>` : "") +
       (sum?.note ? `<div class="m">${esc(sum.note)}</div>` : "");
-    $("ihead").innerHTML = `<tr><th>순위</th><th>아이디어</th>${C.map((c) => `<th class="c" title="${esc(c.why)}">${esc(c.label)}<small>${c.weight}</small></th>`).join("")}<th>100점</th><th class="c">지난 배점</th><th>1차 검토</th></tr>`;
+    $("ihead").innerHTML = `<tr><th>순위</th><th>아이디어</th>${C.map((c) => `<th class="c" title="${esc(c.why)}">${esc(c.label)}<small>${c.weight}</small></th>`).join("")}<th>100점</th><th class="c">지난 배점</th><th>중복 검토</th></tr>`;
     const groups = ["전체", ...new Set(ideas.map((i) => i.group || "일반"))];
     const renderIdeas = (g) => {
       const list = ideas.filter((i) => g === "전체" || (i.group || "일반") === g);
@@ -343,7 +343,7 @@ table.score td.past{color:var(--dim);text-align:center}
       $("idealist").innerHTML = list.map((i) => `<details id="idea-${esc(i.id)}"><summary class="${i.rank <= 2 ? "lead" : ""}"><span class="rk">${esc(i.id)}</span><span class="nm">${esc(i.name)}${grp(i)}<small>${esc(i.theme)}</small></span><span class="vd">${esc(i.verdict)}</span></summary><div class="body">` +
         `<p>${esc(i.pitch)}</p>` +
         (i.reason ? `<p><span class="k">점수 이유</span>${esc(i.reason)}</p>` : "") +
-        (i.dup ? `<p><span class="k">1차 검토</span>${dup(i)} — ${esc(i.dup_note)}</p>` : "") +
+        (i.dup ? `<p><span class="k">중복 검토</span>${dup(i)} — ${esc(i.dup_note)}</p>` : "") +
         `<p class="sg"><span class="k">신호</span>${esc(i.signals)}</p></div></details>`).join("");
       store("igroup", g);
     };
