@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>차량앱 공모전 진행판</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:oklch(0.165 0.012 260);--panel:oklch(0.205 0.014 260);--raise:oklch(0.245 0.016 260);
+  --line:oklch(0.33 0.018 260);--ink:oklch(0.95 0.006 260);--dim:oklch(0.76 0.016 260);
+  --primary:oklch(0.72 0.14 262);--primary-ink:oklch(0.18 0.03 262);
+  --done:oklch(0.78 0.13 155);--doing:oklch(0.82 0.13 85);--risk:oklch(0.72 0.16 28);
+  --r:6px;--ease:cubic-bezier(.25,1,.5,1);
+  --z-sticky:10;--z-toast:40;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg)}
+body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere;color:var(--ink);background:var(--bg);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+a{color:var(--primary)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
+button,select{font:inherit;color:inherit}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:var(--z-sticky);background:var(--panel)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:var(--z-sticky);display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding-block:12px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));background:var(--panel);border-bottom:1px solid var(--line)}
+.top h1{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.top .phase{color:var(--dim);font-size:13.5px}
+.dd{display:flex;gap:18px;margin-left:auto;font-size:13.5px}
+.dd span{color:var(--dim)}
+.dd b{font-weight:700;margin-left:6px}
+.dd .hot b{color:var(--risk)}
+
+.shell{display:grid;grid-template-columns:184px minmax(0,1fr);min-height:calc(100vh - 49px)}
+.tablewrap{overflow-x:auto}
+nav{border-right:1px solid var(--line);background:var(--panel);padding:12px 8px;display:flex;flex-direction:column;gap:2px}
+nav button{all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);color:var(--dim);font-size:14px;transition:background .15s var(--ease),color .15s var(--ease)}
+nav button:hover{background:var(--raise);color:var(--ink)}
+nav button[aria-selected=true]{background:var(--raise);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px var(--line)}
+nav button:focus-visible{outline:2px solid var(--primary)}
+nav .n{font-size:12px;color:var(--dim)}
+nav .sep{height:1px;background:var(--line);margin:8px 4px}
+nav .meta{margin-top:auto;padding:8px 12px;font-size:12px;color:var(--dim)}
+
+main{padding-block:24px 64px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px));min-width:0}
+section[hidden]{display:none}
+section{animation:fade .18s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+h2{font-size:21.6px;font-weight:700;letter-spacing:-.015em;margin-bottom:16px;text-wrap:balance}
+h3{font-size:15px;font-weight:700;margin:28px 0 10px}
+
+.next{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:28px}
+.next > div{background:var(--panel);padding:14px 16px}
+.next .k{font-size:12px;color:var(--dim);margin-bottom:6px}
+.next ul{list-style:none;padding:0;display:grid;gap:4px}
+.next li{display:flex;gap:8px;align-items:baseline;font-size:14px}
+.next .id{font-weight:700;min-width:34px}
+
+.tl{display:flex;gap:2px;margin:4px 0 24px;overflow-x:auto;padding-bottom:4px}
+.tl > div{flex:1 0 92px;padding:8px 10px;background:var(--panel);border-top:3px solid var(--line);font-size:12px;color:var(--dim)}
+.tl > div b{display:block;color:var(--ink);font-size:13.5px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl .now{border-top-color:var(--primary);background:var(--raise)}
+.tl .past{border-top-color:var(--done)}
+.tl .bar{height:4px;background:var(--line);border-radius:2px;margin-top:6px;overflow:hidden}
+.tl .bar i{display:block;height:100%;background:var(--done)}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:12px;font-size:13.5px;color:var(--dim)}
+select{background:var(--raise);border:1px solid var(--line);border-radius:var(--r);padding:5px 8px;cursor:pointer}
+select:hover{border-color:var(--dim)}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{position:sticky;top:calc(49px + env(safe-area-inset-top,0px));background:var(--bg);text-align:left;font-weight:600;font-size:12px;color:var(--dim);padding:8px 10px;border-bottom:1px solid var(--line);z-index:1}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:color-mix(in oklch,var(--raise) 60%,transparent)}
+td.id{font-weight:700;white-space:nowrap}
+td.sub{color:var(--dim);font-size:13.5px}
+tr.ms td{background:var(--panel);font-weight:600;font-size:13.5px;padding-top:14px}
+tr.ms td .due{color:var(--dim);font-weight:400;margin-left:8px}
+
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:13px}
+.st.done{color:var(--done)} .st.todo{color:var(--dim)} .st.doing{color:var(--doing)} .st.late{color:var(--risk)}
+.who{font-size:12px;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.who.user{color:var(--ink);border-color:var(--dim)}
+
+.ideas{display:grid;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.idea{display:grid;grid-template-columns:44px 1fr auto;gap:4px 16px;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.idea:last-child{border-bottom:0}
+.idea .rk{font-size:21.6px;font-weight:700;color:var(--dim);line-height:1.1}
+.idea.top .rk{color:var(--primary)}
+.idea .nm{font-weight:700}
+.idea .nm small{font-weight:400;color:var(--dim);margin-left:8px;font-size:13px}
+.idea .pt{grid-column:2/4;font-size:14px}
+.idea .sg{grid-column:2/4;font-size:13px;color:var(--dim)}
+.idea .vd{font-size:13px;white-space:nowrap}
+
+.stage{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--line);border-radius:var(--r);overflow-x:auto;font-size:13.5px}
+.stage div{flex:1 0 auto;white-space:nowrap;padding:10px 14px;background:var(--panel);color:var(--dim);border-right:1px solid var(--line)}
+.stage div:last-child{border-right:0}
+.stage .on{background:var(--raise);color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--primary)}
+.stage .ok{color:var(--done)}
+.checks{list-style:none;padding:0;display:grid;gap:6px;margin-bottom:24px}
+.checks li{display:flex;gap:10px;font-size:14px}
+.checks .b{width:18px;flex:none;text-align:center;color:var(--dim)}
+.checks .y .b{color:var(--done)}
+
+.doc{max-width:76ch}
+.doc h1{font-size:21.6px;margin:0 0 16px}
+.doc h2{font-size:18px;margin:32px 0 10px}
+.doc h3{font-size:15px;margin:24px 0 8px}
+.doc p,.doc li{text-wrap:pretty}
+.doc p{margin:8px 0}
+.doc ul,.doc ol{padding-left:22px;margin:8px 0;display:grid;gap:3px}
+.doc blockquote{margin:12px 0;padding:8px 14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);color:var(--dim)}
+.doc code{font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:13px;background:var(--raise);padding:1px 5px;border-radius:4px}
+.doc pre{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;overflow-x:auto;margin:10px 0}
+.doc pre code{background:none;padding:0}
+.doc table{margin:12px 0;font-size:13.5px;display:block;overflow-x:auto}
+.doc th{position:static;background:var(--panel)}
+.doc hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+.doc input[type=checkbox]{accent-color:var(--primary)}
+.copy{position:absolute;top:8px;right:8px;background:var(--raise);border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:12px;cursor:pointer;color:var(--dim);transition:color .15s var(--ease),border-color .15s var(--ease)}
+.copy:hover{color:var(--ink);border-color:var(--dim)}
+.copy.ok{color:var(--done);border-color:var(--done)}
+
+.docnav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.docnav button{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:5px 10px;font-size:13.5px;cursor:pointer;color:var(--dim);transition:background .15s var(--ease)}
+.docnav button:hover{background:var(--raise);color:var(--ink)}
+.docnav button[aria-pressed=true]{background:var(--raise);color:var(--ink);border-color:var(--primary)}
+
+.risks{list-style:none;padding:0;display:grid;gap:4px;font-size:14px}
+.risks li{display:flex;gap:10px}
+.risks .id{font-weight:700;color:var(--risk);min-width:30px}
+.risks .m{color:var(--dim)}
+.empty{padding:16px;border:1px dashed var(--line);border-radius:var(--r);color:var(--dim);font-size:14px}
+
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px}
+  nav button{white-space:nowrap}
+  nav .sep,nav .meta{display:none}
+  main{padding-block:18px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .top{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .dd{margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,auto);justify-content:space-between;gap:8px}
+  .next{grid-template-columns:minmax(0,1fr)}
+  th{top:0}
+  td.sub,th.sub{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1 id="title">공모전 진행판</h1>
+  <span class="phase" id="phase"></span>
+  <div class="dd" id="dday"></div>
+</header>
+<div class="shell">
+  <nav role="tablist" aria-label="화면">
+    <button role="tab" data-tab="progress">진행 <span class="n" id="n-progress"></span></button>
+    <button role="tab" data-tab="ideas">아이디어 <span class="n" id="n-ideas"></span></button>
+    <button role="tab" data-tab="plan">기획서 <span class="n" id="n-plan"></span></button>
+    <button role="tab" data-tab="kickoff">개발 착수</button>
+    <div class="sep"></div>
+    <button role="tab" data-tab="docs">문서 <span class="n" id="n-docs"></span></button>
+    <div class="meta" id="meta"></div>
+  </nav>
+  <main>
+    <section id="tab-progress" role="tabpanel">
+      <h2>진행</h2>
+      <div class="next" id="next"></div>
+      <div class="tl" id="timeline"></div>
+      <div class="filters">
+        <label>담당 <select id="f-owner"><option value="">전체</option><option value="user">사용자</option><option value="claude">Claude</option><option value="both">함께</option></select></label>
+        <label>트랙 <select id="f-track"><option value="">전체</option></select></label>
+        <label>상태 <select id="f-status"><option value="">전체</option><option value="todo">대기</option><option value="done">완료</option></select></label>
+      </div>
+      <div class="tablewrap"><table><thead><tr><th>ID</th><th>작업</th><th>담당</th><th>상태</th><th class="sub">완료 기준</th></tr></thead><tbody id="tasks"></tbody></table></div>
+      <h3>리스크</h3>
+      <ul class="risks" id="risks"></ul>
+    </section>
+
+    <section id="tab-ideas" role="tabpanel" hidden>
+      <h2>아이디어</h2>
+      <div class="ideas" id="idealist"></div>
+    </section>
+
+    <section id="tab-plan" role="tabpanel" hidden>
+      <h2>기획서</h2>
+      <div class="stage" id="stage"></div>
+      <ul class="checks" id="checks"></ul>
+      <div class="doc" id="plandoc"></div>
+    </section>
+
+    <section id="tab-kickoff" role="tabpanel" hidden>
+      <h2>개발 착수</h2>
+      <div class="doc" id="kickoffdoc"></div>
+    </section>
+
+    <section id="tab-docs" role="tabpanel" hidden>
+      <h2>문서</h2>
+      <div class="docnav" id="docnav"></div>
+      <div class="doc" id="docview"></div>
+    </section>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script>
+(() => {
+  const S = window.SITE;
+  const $ = (id) => document.getElementById(id);
+  if (!S) { document.querySelector("main").innerHTML = '<div class="empty">data.js 없음 — python -I tools/build-site.py</div>'; return; }
+  const { plan } = S;
+  // Public build (GitHub Pages): ideas and the plan document are not shipped — drop their tabs entirely.
+  if (S.public) {
+    for (const t of ["ideas", "plan"]) {
+      document.querySelector(`nav [data-tab="${t}"]`)?.remove();
+      $("tab-" + t)?.remove();
+    }
+  }
+  const DAY = 864e5;
+  const today = new Date(new Date().toDateString());
+  const days = (d) => Math.round((new Date(d.slice(0, 10)) - today) / DAY);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const md = (src) => window.marked ? marked.parse(src, { gfm: true }) : `<pre>${esc(src)}</pre>`;
+  const TRACK = { tech: "기술", idea: "아이디어", plan: "기획서", impl: "구현", bonus: "가산점", qa: "검수", submit: "제출" };
+  const OWNER = { user: "사용자", claude: "Claude", both: "함께" };
+  const msById = Object.fromEntries(plan.milestones.map((m) => [m.id, m]));
+
+  // header
+  const dd = [["안전본", plan.contest.safe_submit], ["마감", plan.contest.deadline], ["PT", plan.contest.pt]];
+  $("dday").innerHTML = dd.map(([k, d]) => { const n = days(d); return `<div class="${n <= 3 ? "hot" : ""}"><span>${k}</span><b>${n > 0 ? "D-" + n : n === 0 ? "D-day" : "D+" + -n}</b></div>`; }).join("");
+  const current = plan.milestones.find((m) => days(m.due) >= 0 && plan.tasks.some((t) => t.ms === m.id && t.status !== "done")) || plan.milestones.at(-1);
+  $("phase").textContent = current ? `${current.title} · ~${current.due.slice(5)}` : "";
+  $("meta").innerHTML = `${esc(S.built)}<br>${esc(S.head)}`;
+
+  // progress
+  const late = (t) => t.status !== "done" && days(msById[t.ms].due) < 0;
+  const stOf = (t) => t.status === "done" ? ["done", "● 완료"] : late(t) ? ["late", "▲ 지연"] : ["todo", "○ 대기"];
+  const open = plan.tasks.filter((t) => t.status !== "done");
+  const pick = (f) => open.filter(f).sort((a, b) => msById[a.ms].due.localeCompare(msById[b.ms].due)).slice(0, 4);
+  const li = (t) => `<li><span class="id">${esc(t.id)}</span><span>${esc(t.title)}</span></li>`;
+  $("next").innerHTML = [
+    ["사용자 차례", pick((t) => t.owner !== "claude")],
+    ["Claude 차례", pick((t) => t.owner !== "user")],
+    ["지연", open.filter(late)],
+  ].map(([k, list]) => `<div><div class="k">${k} · ${list.length}</div><ul>${list.map(li).join("") || '<li><span class="id">—</span><span>없음</span></li>'}</ul></div>`).join("");
+
+  $("timeline").innerHTML = plan.milestones.map((m) => {
+    const ts = plan.tasks.filter((t) => t.ms === m.id);
+    const pct = ts.length ? Math.round(100 * ts.filter((t) => t.status === "done").length / ts.length) : 0;
+    const cls = m === current ? "now" : days(m.due) < 0 ? "past" : "";
+    return `<div class="${cls}" title="${esc(m.desc)}"><b>${esc(m.title.split(" · ")[1] || m.title)}</b>${m.due.slice(5)}${ts.length ? ` · ${pct}%` : ""}<div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  }).join("");
+
+  const tracks = [...new Set(plan.tasks.map((t) => t.track))];
+  $("f-track").insertAdjacentHTML("beforeend", tracks.map((k) => `<option value="${k}">${TRACK[k] || k}</option>`).join(""));
+  const renderTasks = () => {
+    const fo = $("f-owner").value, ft = $("f-track").value, fs = $("f-status").value;
+    const rows = [];
+    for (const m of plan.milestones) {
+      const ts = plan.tasks.filter((t) => t.ms === m.id && (!fo || t.owner === fo) && (!ft || t.track === ft) && (!fs || t.status === fs));
+      if (!ts.length) continue;
+      rows.push(`<tr class="ms"><td colspan="5">${esc(m.title)}<span class="due">~${m.due.slice(5)}</span></td></tr>`);
+      for (const t of ts) {
+        const [c, label] = stOf(t);
+        rows.push(`<tr><td class="id">${esc(t.id)}</td><td>${esc(t.title)}</td><td><span class="who ${t.owner}">${OWNER[t.owner]}</span></td><td><span class="st ${c}">${label}</span></td><td class="sub">${esc(t.done)}</td></tr>`);
+      }
+    }
+    $("tasks").innerHTML = rows.join("") || '<tr><td colspan="5"><div class="empty">조건에 맞는 작업 없음</div></td></tr>';
+  };
+  ["f-owner", "f-track", "f-status"].forEach((id) => $(id).addEventListener("change", renderTasks));
+  renderTasks();
+  $("n-progress").textContent = `${plan.tasks.length - open.length}/${plan.tasks.length}`;
+  $("risks").innerHTML = plan.risks.map((r) => `<li><span class="id">${esc(r.id)}</span><span>${esc(r.text)} <span class="m">→ ${esc(r.mitigation)}</span></span></li>`).join("");
+
+  // ideas (private build only)
+  if (!S.public) $("idealist").innerHTML = [...plan.ideas].sort((a, b) => a.rank - b.rank).map((i) =>
+    `<div class="idea ${i.rank <= 2 ? "top" : ""}"><div class="rk">${esc(i.id)}</div><div class="nm">${esc(i.name)}<small>${esc(i.theme)}</small></div><div class="vd">${esc(i.verdict)}</div><div class="pt">${esc(i.pitch)}</div><div class="sg">${esc(i.signals)}</div></div>`).join("");
+  if (!S.public) $("n-ideas").textContent = plan.ideas.length;
+
+  // plan + confirmation (derived from 06_기획서 checkboxes and B0)
+  const conf = S.confirmation;
+  const b0 = plan.tasks.find((t) => t.id === "B0");
+  const g1 = plan.tasks.find((t) => t.id === "G1");
+  const allChecked = conf.items.length && conf.items.every((i) => i.checked);
+  const stageIdx = b0?.status === "done" ? 3 : allChecked ? 2 : g1?.status === "done" ? 1 : 0;
+  const doc = (p) => S.docs.find((d) => d.path === p);
+  if (!S.public) {
+    $("stage").innerHTML = ["초안", "아이디어 확정", "컨펌 대기", "개발 착수"].map((s, i) =>
+      `<div class="${i === stageIdx ? "on" : i < stageIdx ? "ok" : ""}">${i < stageIdx ? "● " : i === stageIdx ? "◐ " : "○ "}${s}</div>`).join("");
+    $("checks").innerHTML = conf.items.map((i) => `<li class="${i.checked ? "y" : ""}"><span class="b">${i.checked ? "●" : "○"}</span><span>${esc(i.text)}</span></li>`).join("");
+    $("n-plan").textContent = `${conf.items.filter((i) => i.checked).length}/${conf.items.length}`;
+    $("plandoc").innerHTML = md(doc("06_기획서.md")?.md.split("## 컨펌 체크리스트")[0] ?? "");
+  }
+  $("kickoffdoc").innerHTML = doc("planning/kickoff.md") ? md(doc("planning/kickoff.md").md) : '<div class="empty">planning/kickoff.md 없음</div>';
+
+  // docs
+  $("n-docs").textContent = S.docs.length;
+  const showDoc = (p) => {
+    const d = doc(p) || S.docs[0];
+    $("docview").innerHTML = md(d.md);
+    [...$("docnav").children].forEach((b) => b.setAttribute("aria-pressed", b.dataset.path === d.path));
+    addCopy($("docview"));
+    store("doc", d.path);
+  };
+  $("docnav").innerHTML = S.docs.map((d) => `<button data-path="${esc(d.path)}" aria-pressed="false">${esc(d.title)}</button>`).join("");
+  $("docnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showDoc(b.dataset.path); });
+
+  function addCopy(root) {
+    root.querySelectorAll("pre").forEach((pre) => {
+      if (pre.querySelector(".copy")) return;
+      const b = document.createElement("button");
+      b.className = "copy"; b.type = "button"; b.textContent = "복사";
+      b.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(pre.querySelector("code")?.innerText ?? pre.innerText); b.textContent = "복사됨"; b.classList.add("ok"); }
+        catch { b.textContent = "복사 실패"; }
+        setTimeout(() => { b.textContent = "복사"; b.classList.remove("ok"); }, 1500);
+      });
+      pre.appendChild(b);
+    });
+  }
+  addCopy($("kickoffdoc")); if (!S.public) addCopy($("plandoc"));
+
+  // tabs (hash + remembered choice)
+  function store(k, v) { try { localStorage.setItem("cp." + k, v); } catch {} }
+  function load(k) { try { return localStorage.getItem("cp." + k); } catch { return null; } }
+  const tabs = [...document.querySelectorAll("nav [role=tab]")];
+  const show = (name) => {
+    if (!tabs.some((t) => t.dataset.tab === name)) name = "progress";
+    tabs.forEach((t) => t.setAttribute("aria-selected", t.dataset.tab === name));
+    document.querySelectorAll("main > section").forEach((s) => (s.hidden = s.id !== "tab-" + name));
+    if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+    store("tab", name);
+  };
+  tabs.forEach((t) => t.addEventListener("click", () => show(t.dataset.tab)));
+  window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+  showDoc(load("doc"));
+  show(location.hash.slice(1) || load("tab") || (stageIdx === 3 ? "kickoff" : "progress"));
+})();
+</script>
+</body>
+</html>
