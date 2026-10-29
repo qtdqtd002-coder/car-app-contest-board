@@ -111,6 +111,7 @@ table.score td.tot b{font-size:16px}
 table.score td.tot i{display:block;height:3px;margin-top:3px;background:var(--line);border-radius:2px;overflow:hidden}
 table.score td.tot i::after{content:"";display:block;height:100%;width:var(--w);background:var(--primary)}
 table.score td.past{color:var(--dim);text-align:center}
+table.score td.jd b{color:var(--ink);font-size:16px}
 .grp{display:inline-block;font-size:11.5px;padding:0 6px;margin-left:6px;border-radius:9px;border:1px solid var(--doing);color:var(--doing);vertical-align:1px;white-space:nowrap}
 .dup{font-size:12.5px;white-space:nowrap;color:var(--dim)}
 .dup.hard{color:var(--risk)}
@@ -332,7 +333,7 @@ table.score td.past{color:var(--dim);text-align:center}
     $("isum").innerHTML = (sum ? `<div class="pick">${esc(sum.text)}</div>` : "") +
       (C.length ? `<ul class="crit">${C.map((c) => `<li><b>${esc(c.label)} ${c.weight}%</b>${esc(c.why)}</li>`).join("")}</ul>` : "") +
       (sum?.note ? `<div class="m">${esc(sum.note)}</div>` : "");
-    $("ihead").innerHTML = `<tr><th>순위</th><th>아이디어</th>${C.map((c) => `<th class="c" title="${esc(c.why)}">${esc(c.label)}<small>${c.weight}</small></th>`).join("")}<th>100점</th><th class="c">지난 배점</th><th>중복 검토</th></tr>`;
+    $("ihead").innerHTML = `<tr><th>순위</th><th>아이디어</th>${C.map((c) => `<th class="c" title="${esc(c.why)}">${esc(c.label)}<small>${c.weight}</small></th>`).join("")}<th class="c" title="독립 심사위원이 공식 4기준(창의·차량특화·기술·사업)으로 매긴 점수 — 정렬 기준">심사<small>/20</small></th><th>100점</th><th class="c">지난 배점</th><th>중복 검토</th></tr>`;
     const live = ideas.filter((i) => !i.dropped);
     const dead = ideas.filter((i) => i.dropped);
     const groups = ["전체", ...new Set(live.map((i) => i.group || "일반")), ...(dead.length ? ["폐기"] : [])];
@@ -342,10 +343,11 @@ table.score td.past{color:var(--dim);text-align:center}
       [...$("igroup").children].forEach((b) => b.setAttribute("aria-pressed", b.dataset.g === g));
       $("iscore").innerHTML = list.map((i) => `<tr data-id="${esc(i.id)}" class="${i.rank <= 2 ? "lead" : ""}"><td class="rk">${i.rank} · ${esc(i.id)}</td><td class="nm"><b>${esc(i.name)}</b>${grp(i)}</td>` +
         C.map((c) => { const v = i.scores?.[c.key]; return `<td class="c ${v <= 2 ? "lo" : ""}"><span style="--v:${v ?? 0}">${v ?? "—"}</span></td>`; }).join("") +
-        `<td class="tot"><b>${i.total ?? "—"}</b><i style="--w:${i.total ?? 0}%"></i></td><td class="past">${i.past ?? "—"}</td><td>${dup(i)}</td></tr>`).join("");
+        `<td class="past jd">${i.judge ? `<b>${i.judge.total}</b>` : "—"}</td><td class="tot"><b>${i.total ?? "—"}</b><i style="--w:${i.total ?? 0}%"></i></td><td class="past">${i.past ?? "—"}</td><td>${dup(i)}</td></tr>`).join("");
       $("idealist").innerHTML = list.map((i) => `<details id="idea-${esc(i.id)}"><summary class="${i.rank <= 2 ? "lead" : ""}"><span class="rk">${esc(i.id)}</span><span class="nm">${esc(i.name)}${grp(i)}<small>${esc(i.theme)}</small></span><span class="vd">${esc(i.verdict)}</span></summary><div class="body">` +
         `<p>${esc(i.pitch)}</p>` +
         (i.reason ? `<p><span class="k">점수 이유</span>${esc(i.reason)}</p>` : "") +
+        (i.judge ? `<p><span class="k">독립 심사</span>${i.judge.total}/20 — 창의 ${i.judge.cre} · 차량특화 ${i.judge.car} · 기술 ${i.judge.tech} · 사업 ${i.judge.biz} (${esc(i.judge.by)})</p>` : "") +
         (i.dropped ? `<p><span class="k">폐기 사유</span>${esc(i.dropped)}</p>` : "") +
         (i.dup ? `<p><span class="k">중복 검토</span>${dup(i)} — ${esc(i.dup_note)}</p>` : "") +
         `<p class="sg"><span class="k">신호</span>${esc(i.signals)}</p></div></details>`).join("");
